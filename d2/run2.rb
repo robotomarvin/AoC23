@@ -1,0 +1,1 @@
+p $<.map{|x| x.split(':')[1].split(';').map{|y| y.split(',').map(&:strip).map{|z| n,c=z.split ' '; {c=>n.to_i}}.inject(&:merge)}.inject{|h1,h2| h1.merge(h2){|key,v1,v2| [v1,v2].max}}}.map{|x| x.values.inject(&:*)}.sum
