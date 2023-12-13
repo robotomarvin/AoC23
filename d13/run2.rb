@@ -9,12 +9,8 @@ def mirror array
 		dif_req = 1
 		while left >= 0 && right < array.size
 			diff = bit_dif_check(array[left], array[right])
-			if diff == 0
-			elsif diff <= dif_req
-				dif_req -= diff
-			else
-				break
-			end
+			break if diff > dif_req
+			dif_req -= diff
 			left -= 1
 			right += 1
 		end
