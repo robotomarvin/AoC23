@@ -1,0 +1,1 @@
+p gets.chomp.split(",").map{|x| x.chars.map(&:ord).inject(0){|out, n| ((out+n)*17)%256}}.sum
