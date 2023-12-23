@@ -6,12 +6,12 @@ stop = [map.size-1, map[0].size - 2]
 @h_max = map.size
 @w_max = map[0].size
 
-map[0][1] = 'S'
-map[map.size-1][map[0].size - 2] = 'E'
-@nodes = {
-  'S' => [0, 1, {}],
-  'E' => [map.size-1, map[0].size - 2, {}]
-}
+map[0][1] = 0
+map[map.size-1][map[0].size - 2] = 1
+@nodes = [
+  [0, 1, []],
+  [map.size-1, map[0].size - 2, []]
+]
 dirs = [[0,1], [0,-1], [1,0], [-1,0]]
 
 id = 1
@@ -25,15 +25,13 @@ map.size.times do |h|
       c += 1 if map[new_h][new_w] == '.'
     end
     if c > 2
-      map[h][w] = id
-      @nodes[id] = [h, w, {}]
-      id += 1
+      map[h][w] = @nodes.size
+      @nodes << [h, w, []]
     end
   end
 end
 
-@nodes.each do |n|
-  id, data = n
+@nodes.each.with_index do |data, id|
   x, y, _ = data
   queue = Queue.new
   queue << [[x, y], [[x, y]].to_set, 0]
@@ -48,7 +46,7 @@ end
       next if map[new_h][new_w] == '#'
       next if path === [new_h, new_w]
       if map[new_h][new_w] != '.'
-        @nodes[id][2][map[new_h][new_w]] = l + 1
+        @nodes[id][2] << [map[new_h][new_w], l + 1]
         next
       end
       set_clone = path.clone
@@ -58,26 +56,27 @@ end
   end
 end
 
-graph = @nodes.map{|x| [x[0], x[1][2]]}.to_h
+
+graph = @nodes.map{|x| x[2]}
 
 queue = Queue.new
-queue << ['S', ['S'].to_set, 0]
+queue << [0, 0, 0]
 top_l = 0
 while queue.size > 0
   id, visited, len = queue.pop
-  graph[id].each do |target_id, target_len|
-    next if visited === target_id
-    new_l = len + target_len
-    if target_id == "E"
+  graph[id].each do |child|
+    target_bit = 2**child[0]
+    next if (visited & target_bit) == target_bit
+    if child[0] == 1
+      new_l = len + child[1]
       if new_l > top_l
         top_l = new_l
-        p new_l
       end
       next
     end
 
-    new_v = visited.clone
-    new_v << target_id
-    queue << [target_id, new_v, new_l]
+    queue << [child[0], visited | target_bit, len + child[1]]
   end
 end
+
+p top_l
