@@ -59,8 +59,8 @@ end
 
 graph = @nodes.map{|x| x[2]}
 
-queue = Queue.new
-queue << [0, 0, 0]
+queue = []
+queue << [0, 1, 0]
 top_l = 0
 while queue.size > 0
   id, visited, len = queue.pop
