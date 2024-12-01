@@ -13,4 +13,7 @@ cat instructions.html | xq -x '//pre/code' > test
 cat instructions.html | xq -x '//article' > instructions
 rm instructions.html 
 
-touch run.rb
+FILE="run.rb"
+if [ ! -f $FILE ]; then
+  cp ../../template.rb $FILE
+fi
