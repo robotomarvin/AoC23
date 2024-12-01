@@ -1,0 +1,7 @@
+--dir
+.
+--ignore=/tmp/
+--ignore=/vendor/bundle
+--ignore=build
+--ignore=2023
+--ignore=2024

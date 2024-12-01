@@ -1,53 +1,77 @@
+# frozen_string_literal: true
+# typed: strict
+
 class Map
-  def initialize data
-    @w = data.size
-    @h = data[0].size
+  extend T::Sig
+  extend T::Generic
+
+  Elem = type_member
+
+  sig { params(data: T::Array[T::Array[Elem]]).void }
+  def initialize(data)
+    @w = T.let(data.size, Integer)
+    @h = T.let((data[0] || []).size, Integer)
     @data = data
   end
 
-  def [] vector
-    @data[vector.x][vector.y]
-  end
-  def []= vector, value
-    @data[vector.x][vector.y] = value
+  sig { params(vector: Vector2).returns(T.nilable(Elem)) }
+  def [](vector)
+    row = @data[vector.x]
+    return nil if row.nil?
+
+    row[vector.y]
   end
 
-  def exists? vector
-    return false if vector.x < 0
-    return false if vector.y < 0
+  sig { params(vector: Vector2, value: Elem).void }
+  def []=(vector, value)
+    row = @data[vector.x]
+    raise 'X does not exist' if row.nil?
+    raise 'Y does not exist' if vector.y >= row.size
+
+    row[vector.y] = value
+  end
+
+  sig { params(vector: Vector2).returns(T::Boolean) }
+  def exists?(vector)
+    return false if vector.x.negative?
+    return false if vector.y.negative?
     return false if vector.x >= @w
     return false if vector.y >= @h
+
     true
   end
 
-  def each &block
-    @w.times do |x|
-      @h.times do |y|
-        yield Vector2Value.new(Vector2.new(x,y), @data[x][y])
+  sig { params(_block: T.proc.params(arg0: Vector2Value[Elem]).void).void }
+  def each(&_block)
+    @data.each_with_index do |row, x|
+      row.each_with_index do |value, y|
+        yield Vector2Value.new(Vector2.new(x, y), value)
       end
     end
   end
 
-  def map &block
+  sig do
+    type_parameters(:X)
+      .params(_block: T.proc.params(arg0: Vector2Value[Elem]).returns(T.type_parameter(:X)))
+      .returns(Map[T.type_parameter(:X)])
+  end
+  def map(&_block)
     new_data = []
-    @w.times do |x|
+    @data.each_with_index do |row, x|
       new_data[x] = []
-      @h.times do |y|
-        new_data[x][y] = yield Vector2Value.new(Vector2.new(x,y), @data[x][y])
+      row.each_with_index do |value, y|
+        new_data[x][y] = yield Vector2Value[Elem].new(Vector2.new(x, y), value)
       end
     end
     Map.new(new_data)
   end
 
+  sig { returns(String) }
   def to_s
-    out = ""
-    @w.times do |x|
-      @h.times do |y|
-        if @data[x][y] == nil
-          out += ' '
-        else
-          out += @data[x][y].to_s
-        end
+    out = ''
+    @data.each do |row|
+      row.each do |value|
+        out += T.unsafe(value).nil? ? ' ' : T.unsafe(value).to_s
       end
       out += "\n"
     end
