@@ -6,6 +6,6 @@ module I
 
   sig { returns(Map[String]) }
   def self.to_map
-    $<.map { |l| l.chomp.chars }.to_map
+    Map.new($<.map { |l| l.chomp.chars })
   end
 end

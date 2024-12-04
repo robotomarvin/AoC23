@@ -22,6 +22,11 @@ class Vector2
     Vector2.new(@x - other.x, @y - other.y)
   end
 
+  sig { params(other: Integer).returns(Vector2) }
+  def *(other)
+    Vector2.new(@x * other, @y * other)
+  end
+
   sig { params(other: Vector2).returns(T::Boolean) }
   def eql?(other)
     @x == other.x && @y == other.y
@@ -42,6 +47,7 @@ class Vector2
   RIGHT_UP = T.let(RIGHT + UP, Vector2)
   RIGHT_DOWN = T.let(RIGHT + DOWN, Vector2)
   DIRS = T.let([LEFT, UP, RIGHT, DOWN].freeze, T::Array[Vector2])
+  DDIRS = T.let([LEFT_UP, RIGHT_UP, RIGHT_DOWN, LEFT_DOWN].freeze, T::Array[Vector2])
   EDIRS = T.let([LEFT, LEFT_UP, UP, RIGHT_UP, RIGHT, RIGHT_DOWN, DOWN, LEFT_DOWN].freeze, T::Array[Vector2])
 
   sig { returns(String) }
